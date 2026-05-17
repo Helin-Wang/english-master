@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+ocr_bin
+.DS_Store
+logs/.obsidian/
+.claude/

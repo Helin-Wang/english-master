@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>确认词组</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f7; padding: 20px 16px 100px; }
+    .header { margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 700; color: #1d1d1f; }
+    .show-tag { display: inline-block; background: #e8f0fe; color: #0071e3; font-size: 13px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-top: 6px; }
+    .subtitle { font-size: 13px; color: #86868b; margin-top: 6px; }
+    .tip { background: #fff9e6; border-radius: 12px; padding: 11px 14px; font-size: 13px; color: #7a6200; margin-bottom: 16px; line-height: 1.5; }
+    .phrase-item { display: flex; align-items: center; background: white; border-radius: 14px; padding: 11px 12px; margin-bottom: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); gap: 10px; }
+    .phrase-num { font-size: 13px; color: #adadb8; min-width: 22px; font-weight: 600; text-align: right; }
+    .phrase-input { flex: 1; border: none; outline: none; font-size: 16px; color: #1d1d1f; background: transparent; min-width: 0; }
+    .phrase-input:focus { color: #0071e3; }
+    .del-btn { background: none; border: none; font-size: 20px; color: #c8c8cd; cursor: pointer; padding: 2px 4px; line-height: 1; flex-shrink: 0; }
+    .del-btn:active { color: #ff3b30; }
+    .add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; background: white; border: 1.5px dashed #c8c8cd; border-radius: 14px; padding: 13px 14px; width: 100%; cursor: pointer; font-size: 15px; color: #86868b; margin-bottom: 16px; }
+    .add-btn:active { border-color: #0071e3; color: #0071e3; }
+    .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #f5f5f7; padding: 12px 16px 28px; border-top: 1px solid #e0e0e5; }
+    .submit-btn { width: 100%; padding: 15px; background: #0071e3; color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
+    .submit-btn:disabled { background: #c0c0c5; }
+    .count { text-align: center; font-size: 12px; color: #86868b; margin-top: 6px; }
+    .loading { display: none; text-align: center; font-size: 13px; color: #86868b; margin-top: 6px; }
+    .empty-msg { text-align: center; color: #86868b; padding: 30px 0; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>确认词组</h1>
+    {% if show_info %}<div class="show-tag">{{ show_info }}</div>{% endif %}
+    <div class="subtitle">可直接修改、删除错误识别，或手动添加</div>
+  </div>
+
+  <div class="tip">💡 OCR 识别不准？点击文字直接编辑；误识别的行点 × 删除</div>
+
+  <form method="POST" action="/enrich" id="enrichForm">
+    <input type="hidden" name="show_info" value="{{ show_info }}">
+
+    <div id="phraseList">
+      {% for phrase in phrases %}
+      <div class="phrase-item">
+        <span class="phrase-num">{{ loop.index }}</span>
+        <input class="phrase-input" type="text" name="phrases" value="{{ phrase }}">
+        <button type="button" class="del-btn" onclick="deleteItem(this)" title="删除">×</button>
+      </div>
+      {% else %}
+      <div class="empty-msg" id="emptyMsg">未识别到文字，请手动添加</div>
+      {% endfor %}
+    </div>
+
+    <button type="button" class="add-btn" onclick="addPhrase()">＋ 手动添加词组</button>
+
+    <div class="footer">
+      <button type="submit" class="submit-btn" id="submitBtn">生成解析 →</button>
+      <div class="count" id="countDisplay"></div>
+      <div class="loading" id="loading">⏳ 正在调用 Claude 生成，约 20–40 秒…</div>
+    </div>
+  </form>
+
+  <script>
+    function deleteItem(btn) {
+      btn.closest('.phrase-item').remove();
+      renumber();
+      updateCount();
+    }
+
+    function addPhrase() {
+      const emptyMsg = document.getElementById('emptyMsg');
+      if (emptyMsg) emptyMsg.remove();
+      const list = document.getElementById('phraseList');
+      const items = list.querySelectorAll('.phrase-item');
+      const div = document.createElement('div');
+      div.className = 'phrase-item';
+      div.innerHTML = `
+        <span class="phrase-num">${items.length + 1}</span>
+        <input class="phrase-input" type="text" name="phrases" placeholder="输入词组…">
+        <button type="button" class="del-btn" onclick="deleteItem(this)">×</button>
+      `;
+      list.appendChild(div);
+      div.querySelector('input').focus();
+      updateCount();
+    }
+
+    function renumber() {
+      document.querySelectorAll('.phrase-item .phrase-num').forEach((el, i) => {
+        el.textContent = i + 1;
+      });
+    }
+
+    function updateCount() {
+      const n = document.querySelectorAll('.phrase-item input').length;
+      document.getElementById('countDisplay').textContent = n ? `共 ${n} 个词组` : '';
+    }
+
+    document.getElementById('enrichForm').onsubmit = () => {
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+    };
+
+    updateCount();
+  </script>
+</body>
+</html>

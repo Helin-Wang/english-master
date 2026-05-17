@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今日词组</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f7; padding: 20px 16px 40px; }
+    .header { margin-bottom: 20px; }
+    h1 { font-size: 22px; font-weight: 700; color: #1d1d1f; }
+    .meta { font-size: 13px; color: #86868b; margin-top: 5px; }
+    .saved-badge { display: inline-flex; align-items: center; gap: 4px; background: #e8f9e8; color: #2d9e2d; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+    .summary { background: #f0f7ff; border-radius: 14px; padding: 13px 16px; margin-bottom: 20px; font-size: 14px; color: #0071e3; line-height: 1.5; }
+    .word-card { background: white; border-radius: 16px; padding: 18px 18px 16px; margin-bottom: 12px; box-shadow: 0 1px 10px rgba(0,0,0,0.07); }
+    .phrase { font-size: 19px; font-weight: 700; color: #1d1d1f; margin-bottom: 5px; }
+    .chinese { font-size: 15px; color: #0071e3; font-weight: 500; margin-bottom: 10px; }
+    .example { font-size: 14px; color: #555; line-height: 1.6; padding-left: 12px; border-left: 3px solid #e0e5f0; }
+    .footer { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .btn { display: block; width: 100%; padding: 15px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; border: none; }
+    .btn-primary { background: #0071e3; color: white; }
+    .btn-secondary { background: white; color: #0071e3; border: 1.5px solid #d0d8e8; }
+    .log-path { font-size: 12px; color: #adadb8; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>今日词组 <span class="saved-badge">✓ 已保存</span></h1>
+    <div class="meta">
+      {{ today }}{% if show_info %} · {{ show_info }}{% endif %}
+    </div>
+  </div>
+
+  <div class="summary">
+    本次共学习 <strong>{{ enriched|length }}</strong> 个词组
+    <br><span class="log-path">logs/{{ today }}.md · 可在 Obsidian 中复习闪卡</span>
+  </div>
+
+  {% for item in enriched %}
+  <div class="word-card">
+    <div class="phrase">{{ item.phrase }}</div>
+    <div class="chinese">{{ item.chinese }}</div>
+    {% if item.example %}
+    <div class="example">{{ item.example }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="footer">
+    <a href="/" class="btn btn-primary">继续学习 →</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今日英文</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f7; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: white; border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 400px; box-shadow: 0 2px 24px rgba(0,0,0,0.08); }
+    h1 { font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 6px; }
+    .subtitle { font-size: 14px; color: #86868b; margin-bottom: 28px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px; letter-spacing: 0.02em; }
+    input[type="text"] { width: 100%; padding: 13px 14px; border: 1.5px solid #e0e0e5; border-radius: 12px; font-size: 16px; color: #1d1d1f; margin-bottom: 22px; outline: none; transition: border-color 0.2s; background: #fafafa; }
+    input[type="text"]:focus { border-color: #0071e3; background: white; }
+    .upload-area { border: 2px dashed #d0d0d5; border-radius: 16px; padding: 36px 16px; text-align: center; cursor: pointer; margin-bottom: 22px; transition: all 0.2s; background: #fafafa; }
+    .upload-area.has-image { border-style: solid; border-color: #34c759; background: white; padding: 12px; }
+    .upload-icon { font-size: 40px; margin-bottom: 10px; }
+    .upload-text { font-size: 15px; color: #86868b; line-height: 1.5; }
+    .upload-text strong { color: #0071e3; }
+    input[type="file"] { display: none; }
+    #thumbGrid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+    .change-hint { font-size: 12px; color: #86868b; margin-top: 10px; display: none; }
+    .submit-btn { width: 100%; padding: 15px; background: #0071e3; color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .submit-btn:disabled { background: #c0c0c5; cursor: default; }
+    .submit-btn:not(:disabled):active { background: #005bbf; }
+    .loading { display: none; text-align: center; color: #86868b; margin-top: 14px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>今日英文词组</h1>
+    <p class="subtitle">拍下手写笔记，自动识别并解析</p>
+
+    <form method="POST" action="/review" enctype="multipart/form-data" id="uploadForm">
+      <label>剧名 / 集数（可选）</label>
+      <input type="text" name="show_info" placeholder="例：Breaking Bad S01E01">
+
+      <label>手写笔记照片</label>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('photoInput').click()">
+        <div id="uploadPrompt">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">点击选择照片（可多选）</div>
+        </div>
+        <div id="thumbGrid"></div>
+        <div class="change-hint" id="changeHint">点击重新选择</div>
+      </div>
+      <input type="file" id="photoInput" name="photo" accept="image/*" multiple onchange="showPreviews(this)">
+
+      <button type="submit" class="submit-btn" id="submitBtn" disabled>识别词组 →</button>
+      <div class="loading" id="loading">⏳ 正在识别，请稍候…</div>
+    </form>
+  </div>
+
+  <script>
+    function showPreviews(input) {
+      const files = Array.from(input.files);
+      if (!files.length) return;
+
+      const grid = document.getElementById('thumbGrid');
+      const prompt = document.getElementById('uploadPrompt');
+      const hint = document.getElementById('changeHint');
+      const area = document.getElementById('uploadArea');
+
+      grid.innerHTML = '';
+      prompt.style.display = 'none';
+      area.classList.add('has-image');
+      hint.style.display = 'block';
+      hint.textContent = `已选 ${files.length} 张，点击重新选择`;
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'thumb';
+          grid.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = `识别 ${files.length} 张图片 →`;
+    }
+
+    document.getElementById('uploadForm').onsubmit = () => {
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+    };
+  </script>
+</body>
+</html>
