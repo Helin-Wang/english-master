@@ -82,13 +82,14 @@
       .main { padding: 66px 16px 20px; }
 
       .scene {
-        width: 100%;
-        height: 220px;
+        width: calc(100vw - 32px);
+        max-width: none;
+        height: 300px;
       }
-      .face { padding: 20px; }
+      .face { padding: 24px 20px; }
       .face-front .zh { font-size: 26px; }
       .face-back .en  { font-size: 18px; }
-      .face-back .ex  { font-size: 13px; overflow-y: auto; max-height: 80px; }
+      .face-back .ex  { font-size: 13px; }
 
       .flip-hint { margin-top: 8px; }
       .controls { margin-top: 16px; gap: 12px; }
