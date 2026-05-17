@@ -15,6 +15,37 @@
       overflow: hidden;
     }
 
+    /* ── Toggle button ── */
+    .toggle-btn {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 300;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 10px;
+      background: #4f6ef7;
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(79,110,247,0.3);
+    }
+
+    /* ── Overlay (mobile) ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+    }
+    .overlay.show { display: block; }
+
     /* ── Sidebar ── */
     .sidebar {
       width: 200px;
@@ -30,6 +61,25 @@
       font-weight: 700;
       color: #1a1a1a;
       border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .toggle-btn { display: flex; }
+      .sidebar {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        z-index: 200;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { padding: 20px 16px; }
+      .face-front .zh { font-size: 28px; }
+      .face-back .en  { font-size: 20px; }
+      .btn-nav { padding: 10px 18px; font-size: 13px; }
+      .kbd-hint { display: none; }
     }
     .sidebar-actions {
       display: flex;
@@ -191,7 +241,10 @@
 </head>
 <body>
 
-<div class="sidebar">
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
   <div class="sidebar-header">English Master</div>
   <div class="sidebar-actions">
     <button class="btn-sm" onclick="selectAll()">全选</button>
@@ -242,6 +295,7 @@ function rebuild() {
   cards = selected.flatMap(d => allData[d] || []);
   shuffle(cards);
   idx = 0;
+  closeSidebar();
   renderMain();
 }
 
@@ -302,6 +356,16 @@ function flip() {
 function go(dir) {
   const n = idx + dir;
   if (n >= 0 && n < cards.length) { idx = n; showCard(); }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
 }
 
 document.addEventListener('keydown', e => {
