@@ -46,7 +46,10 @@ def enrich_phrases(phrases, show_info):
         f'Phrases:\n{items}\n\n'
         'Return ONLY a JSON array, no other text:\n'
         '[{"phrase":"...","chinese":"简洁中文释义","example":"one natural example sentence"}]\n'
-        'Keep chinese concise (4-8 characters preferred). Example sentence should feel natural.'
+        'Rules:\n'
+        '- The "chinese" field MUST reflect the meaning as used in this specific show/context, not a generic dictionary definition. If the phrase has a special tone, connotation, or nuance in the plot, capture that.\n'
+        '- Keep chinese concise (4-8 characters preferred).\n'
+        '- Example sentence should feel natural and match the register of the show.'
     )
     result = subprocess.run(
         ['claude', '-p', prompt],
